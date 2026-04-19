@@ -207,37 +207,102 @@ SMODS.Joker{ --QUARTZ
 }
 
 
-SMODS.Joker{ --Sports drink
-    key = "sportsdrink",
+
+SMODS.Joker{ --刷鐵機
+    key = "ironfarm",
     config = {
         extra = {
-            chips = 150,
-            chipsmod = 10
         }
     },
     loc_txt = {
-        ['name'] = '寶礦力',
+        ['name'] = '刷鐵機',
         ['text'] = {
-            [1] = '若剩餘出牌數小於{C:blue}2{}，',
-            [2] = '{C:blue}+#1#{}籌碼，結算完畢後{C:blue}-#2#{}',
+            [1] = '進入盲注時，生成一個鐵小丑'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
         }
     },
     pos = {
-        x = 3,
-        y = 0
+        x = 9,
+        y = 3
     },
     display_size = {
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 4,
-    rarity = 1,
+    cost = 6,
+    rarity = 2,
     blueprint_compat = true,
     demicoloncompat = true,
-    eternal_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.setting_blind or context.forcetrigger then
+            return {
+                func = function()
+                    
+                    local created_joker = false
+                    if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                        created_joker = true
+                        G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_iron' })
+                                if joker_card then
+                                    
+                                    
+                                end
+                                G.GAME.joker_buffer = 0
+                                return true
+                            end
+                        }))
+                    end
+                    if created_joker then
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_joker'), colour = G.C.BLUE})
+                    end
+                    return true
+                end
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --刷金機
+    key = "goldfarm",
+    config = {
+        extra = {
+            played = 0,
+            repetitions = 2
+        }
+    },
+    loc_txt = {
+        ['name'] = '刷金機',
+        ['text'] = {
+            [1] = '{C:attention}5{}次出牌後{C:inactive}(#1#){}',
+            [2] = '產生{C:attention}2{}個金小丑'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 8,
+        y = 3
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 8,
+    rarity = 3,
+    blueprint_compat = false,
+    demicoloncompat = true,
+    eternal_compat = true,
     perishable_compat = true,
     unlocked = true,
     discovered = true,
@@ -245,59 +310,59 @@ SMODS.Joker{ --Sports drink
     
     loc_vars = function(self, info_queue, card)
         
-        return {vars = {card.ability.extra.chips, card.ability.extra.chipsmod}}
+        return {vars = {card.ability.extra.played}}
     end,
     
     calculate = function(self, card, context)
-        if context.forcetrigger then
-            return {
-                chips = card.ability.extra.chips
-            }
-        end
-        if context.cardarea == G.jokers and context.joker_main  then
-            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
-                return {
-                    chips = card.ability.extra.chips
-                }
-            end
-        end
-        if context.after and context.cardarea == G.jokers  and not context.blueprint then
-            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
-                if to_big(card.ability.extra.chips) > to_big(card.ability.extra.chipsmod) then
-                    return {
-                        func = function()
-                            card.ability.extra.chips = math.max(0, (card.ability.extra.chips) - card.ability.extra.chipsmod)
-                            return true
-                        end,
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "-"..tostring(card.ability.extra.chipsmod), colour = G.C.BLUE})
-                    }
-                else
-                    return {
-                        func = function()
-                            local target_joker = card
-                        
-                        if target_joker then
-                            if target_joker.ability.eternal then
-                                target_joker.ability.eternal = nil
-                            end
-                            target_joker.getting_sliced = true
-                            G.E_MANAGER:add_event(Event({
-                                func = function()
-                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
-                                    return true
+        if context.cardarea == G.jokers and context.joker_main  and not context.blueprint then
+            if to_big(card.ability.extra.played) < to_big(4) then
+                card.ability.extra.played = (card.ability.extra.played) + 1
+            elseif to_big(card.ability.extra.played) >= to_big(4) then
+                card.ability.extra.played = 0
+                for i = 1, 2 do
+                    local created_joker = false
+                    if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                        created_joker = true
+                        G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_gold' })
+                                if joker_card then
+                                    
+                                    
                                 end
-                            }))
-                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Eaten!", colour = G.C.RED})
-                        end
-                        return true
+                                G.GAME.joker_buffer = 0
+                                return true
+                            end
+                        }))
                     end
-                    }
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = created_joker and localize('k_plus_joker') or nil, colour = G.C.BLUE})
                 end
             end
         end
+        if context.forcetrigger then
+                for i = 1, 2 do
+                    local created_joker = false
+                    if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                        created_joker = true
+                        G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_gold' })
+                                if joker_card then
+                                    
+                                    
+                                end
+                                G.GAME.joker_buffer = 0
+                                return true
+                            end
+                        }))
+                    end
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = created_joker and localize('k_plus_joker') or nil, colour = G.C.BLUE})
+                end
+        end
     end
 }
-
 
 SMODS.Joker{ --Zombie Skeleton
     key = "zombieskeleton",
@@ -344,6 +409,172 @@ SMODS.Joker{ --Zombie Skeleton
                     end
                 }))
             end
+        end
+    end
+}
+
+
+SMODS.Joker{ --Low Tier 1
+    key = "lowtier1",
+    config = {
+        extra = {
+            repetitions0 = 2
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Low Tier 1',
+        ['text'] = {
+            [1] = '重新觸發打出的{C:attention}A{}兩次'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 1,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.repetition and context.cardarea == G.play  then
+            if context.other_card:get_id() == 14 then
+                return {
+                    repetitions = 2,
+                    message = localize('k_again_ex')
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --High Tier 1
+    key = "hightier1",
+    config = {
+        extra = {
+            chips0 = 50,
+            mult0 = 10,
+            xmult0 = 1.5
+        }
+    },
+    loc_txt = {
+        ['name'] = 'High Tier 1',
+        ['text'] = {
+            [1] = '打出的{C:attention}A{}視為擁有{C:dark_edition}負片{}以外',
+            [2] = '的所有其他原版版本'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 0,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 8,
+    rarity = 3,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if context.other_card:get_id() == 14 then
+                return {
+                    chips = 50,
+                    extra = {
+                        mult = 10,
+                        extra = {
+                            Xmult = 1.5
+                        }
+                    }
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --Attribute Swapping
+    key = "attributeswapping",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Attribute Swapping',
+        ['text'] = {
+            [1] = '{C:attention}左邊{}的小丑結算時',
+            [2] = '{C:attention}強制觸發右邊{}的小丑'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 2,
+        y = 3
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 20,
+    rarity = 4,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    in_pool = function(self, args)
+        return (
+            not args 
+            or args.source ~= 'sho' 
+            or args.source == 'buf' or args.source == 'jud' or args.source == 'rif' or args.source == 'rta' or args.source == 'sou' or args.source == 'uta' or args.source == 'wra'
+        )
+        and true
+    end,
+    calculate = function(self, card, context)
+        if context.post_trigger then
+            local left_joker = nil
+            for k, v in ipairs(G.jokers.cards) do
+                if v == card then
+                    if k > 1 then
+                        left_joker = G.jokers.cards[k - 1]
+                    end
+                end
+            end
+            if left_joker and context.other_card == left_joker then
+			    for i = 1, #G.jokers.cards do
+				    if G.jokers.cards[i] == card then
+					    if Cryptid.demicolonGetTriggerable(G.jokers.cards[i + 1])[1] then
+						    local results = Cryptid.forcetrigger(G.jokers.cards[i + 1], context)
+						    if results and results.jokers then
+							    return results.jokers
+						    end
+						end
+					end
+				end
+			end
         end
     end
 }

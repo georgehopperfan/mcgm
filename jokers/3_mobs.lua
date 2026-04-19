@@ -158,8 +158,8 @@ SMODS.Joker{ --骷髏
         }
     },
     pos = {
-        x = 0,
-        y = 0
+        x = 4,
+        y = 3
     },
     display_size = {
         w = 71 * 1, 
