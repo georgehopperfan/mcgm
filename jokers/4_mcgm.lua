@@ -94,7 +94,7 @@ SMODS.Joker{ --MACE ATTACK
         ['text'] = {
             [1] = '打出並計分的牌中',
             [2] = '最高點數和最低點數每差1點',
-            [3] = '{X:red,C:white}X0.5{}倍率'
+            [3] = '{X:red,C:white}X0.6{}倍率'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
@@ -131,7 +131,7 @@ SMODS.Joker{ --MACE ATTACK
             end
             if high - low > 0 then
                 return {
-                    Xmult = 0.5 * lenient_bignum((high - low) or 0)
+                    Xmult = 0.6 * lenient_bignum((high - low) or 0)
                 }
             else
                 return {

@@ -328,16 +328,15 @@ SMODS.Joker{ --終界使者
     key = "enderman",
     config = {
         extra = {
-            xmult_mod = 0.15,
-            xmult = 1
+            xmult = 0
         }
     },
     loc_txt = {
         ['name'] = '終界使者',
         ['text'] = {
-            [1] = '回合結束時，',
-            [2] = '每個剩餘的棄牌數{X:red,C:white}X#1#{}倍率',
-            [3] = '{C:inactive}（目前{}{X:red,C:white}X#2#{}{C:inactive}倍率）{}',
+            [1] = '每個回合首次出牌時，失去所有棄牌，',
+            [2] = '每失去1棄牌本回合{X:red,C:white}X1{}倍率',
+            [3] = '{C:inactive}（目前{}{X:red,C:white}X#1#{}{C:inactive}倍率）{}',
             [4] = ''
         },
         ['unlock'] = {
@@ -352,7 +351,7 @@ SMODS.Joker{ --終界使者
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 7,
+    cost = 6,
     rarity = 2,
     blueprint_compat = true,
     demicoloncompat = true,
@@ -364,26 +363,38 @@ SMODS.Joker{ --終界使者
     
     loc_vars = function(self, info_queue, card)
         
-        return {vars = {card.ability.extra.xmult_mod, card.ability.extra.xmult}}
+        return {vars = {card.ability.extra.xmult}}
     end,
     
     calculate = function(self, card, context)
-        if context.cardarea == G.jokers and context.joker_main  then
-            return {
-                Xmult = card.ability.extra.xmult
-            }
+        if context.before and context.cardarea == G.jokers  and not context.blueprint then
+            if G.GAME.current_round.hands_played == 0 then
+                return {
+                    func = function()
+                        card.ability.extra.xmult = G.GAME.current_round.discards_left
+                        return true
+                    end,
+                    extra = {
+                        
+                        func = function()
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = tostring(card.ability.extra.xmult), colour = G.C.BLUE})
+                            G.GAME.current_round.discards_left = 0
+                            return true
+                        end,
+                        colour = G.C.GREEN
+                    }
+                }
+            end
         end
         if context.end_of_round and context.game_over == false and context.main_eval  and not context.blueprint then
             return {
                 func = function()
-                    card.ability.extra.xmult = (card.ability.extra.xmult) + (card.ability.extra.xmult_mod * G.GAME.current_round.discards_left)
+                    card.ability.extra.xmult = 0
                     return true
-                end,
-                message = localize('k_upgrade_ex')
+                end
             }
         end
-        if context.forcetrigger then
-            card.ability.extra.xmult = (card.ability.extra.xmult) + (card.ability.extra.xmult_mod * G.GAME.current_round.discards_left)
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
             return {
                 Xmult = card.ability.extra.xmult
             }
