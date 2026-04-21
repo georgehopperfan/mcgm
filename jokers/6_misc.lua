@@ -100,6 +100,200 @@ SMODS.Joker{ --普拿疼
         end
     end
 }
+SMODS.Joker{ --Samurai
+    key = "samurai",
+    config = {
+        extra = {
+            xmult = 7,
+            scored = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '武士',
+        ['text'] = {
+            [1] = '每{C:attention}7{}張牌計分時{X:red,C:white}X#1#{}倍率',
+            [2] = '{C:inactive}(目前#2#/7){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 7, y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.xmult, card.ability.extra.scored}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if to_big((card.ability.extra.scored or 0)) < to_big(6) then
+                card.ability.extra.scored = (card.ability.extra.scored) + 1
+                return {
+                    message = "domp"
+                }
+            else
+                card.ability.extra.scored = 0
+                return {
+                    Xmult = card.ability.extra.xmult
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --Iciclez_
+    key = "iciclez",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Iciclez_',
+        ['text'] = {
+            [1] = '擊敗{C:attention}Boss盲注{}時',
+            [2] = '建立兩個{C:attention}小帳{}'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 0,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.end_of_round and context.main_eval and G.GAME.blind.boss or context.forcetrigger then
+            if true then
+                for i = 1, 2 do
+                    SMODS.calculate_effect({func = function()
+                        
+                        local created_joker = true
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_iciclezalt' })
+                                if joker_card then
+                                    
+                                    
+                                end
+                                
+                                return true
+                            end
+                        }))
+                        
+                        if created_joker then
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_joker'), colour = G.C.BLUE})
+                        end
+                        return true
+                    end}, card)
+                end
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --Iciclez_ alt
+    key = "iciclezalt",
+    config = {
+		extra = {
+			mult = 1.1,
+			slots = 1
+		}
+    },
+    loc_txt = {
+        ['name'] = 'Iciclez_小帳',
+        ['text'] = {
+            [1] = '{X:red,C:white}X#1#{}倍率',
+            [2] = '{C:dark_edition}+#2#{}小丑牌欄位'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 1,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 2,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+	
+    loc_vars = function(self, info_queue, card)
+        return {vars = {card.ability.extra.mult, card.ability.extra.slots}}
+    end,
+	
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
+                return {
+                    Xmult = lenient_bignum(card.ability.extra.mult)
+                }
+        end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+        G.jokers.config.card_limit = G.jokers.config.card_limit + card.ability.extra.slots
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        G.jokers.config.card_limit = G.jokers.config.card_limit - card.ability.extra.slots
+    end
+}
+
+local check_for_buy_space_ref = G.FUNCS.check_for_buy_space
+G.FUNCS.check_for_buy_space = function(card)
+    if card.config.center.key == "j_mcgm_iciclezalt" then -- ignore slot limit when bought
+        return true
+    end
+    return check_for_buy_space_ref(card)
+end
+
+local can_select_card_ref = G.FUNCS.can_select_card
+G.FUNCS.can_select_card = function(e)
+	if e.config.ref_table.config.center.key == "j_mcgm_iciclezalt" then
+		e.config.colour = G.C.GREEN
+		e.config.button = "use_card"
+	else
+		can_select_card_ref(e)
+	end
+end
 SMODS.Joker{ --Bloon Exclusion Zone (v38-53)
     key = "bez",
     config = {
@@ -207,6 +401,314 @@ SMODS.Joker{ --Carrier Flagship
         if context.forcetrigger then
             return {
                 x_chips = card.ability.extra.chips
+            }
+        end
+    end
+}
+SMODS.Joker{ --Stupid Owl Stall
+    key = "stupidowlstall",
+    config = {
+        extra = {
+            hands = 1,
+            chips = 0,
+            odds = 2,
+            round = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Stupid Owl Stall',
+        ['text'] = {
+            [1] = '出牌時有{C:green}#4#/#5#{}機率',
+            [2] = '{C:blue}+#1#{}出牌次數並{X:blue,C:white}X#2#{}籌碼'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 9,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    loc_vars = function(self, info_queue, card)
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall') 
+        return {vars = {card.ability.extra.hands, card.ability.extra.chips, card.ability.extra.round, new_numerator, new_denominator}}
+    end,
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
+            if true then
+                if SMODS.pseudorandom_probability(card, 'group_0_e9967624', 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall', false) then
+              SMODS.calculate_effect({x_chips = card.ability.extra.chips}, card)
+                        SMODS.calculate_effect({func = function()
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "+"..tostring(card.ability.extra.hands).." Hand", colour = G.C.GREEN})
+                G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + card.ability.extra.hands
+                return true
+            end}, card)
+          end
+            end
+        end
+    end
+}
+if Cryptid then
+SMODS.Joker{ --Mabel
+    key = "mabel",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '梅寶',
+        ['text'] = {
+            [1] = '打出牌結算前，所有小丑的數值',
+            [2] = '隨機改為目前數值的{C:attention}X0.8{}到{C:attention}X1.25{}倍'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 3,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 5,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if (context.cardarea == G.jokers and context.before) or context.forcetrigger then
+            local result = pseudorandom(pseudoseed("sholium_mabel"), 80, 125)
+            local check = false
+            for i = 1, #G.jokers.cards do
+                if not (G.jokers.cards[i] == card) then
+                    if not Card.no(G.jokers.cards[i], "immutable", true) then
+                        check = true
+                        Cryptid.with_deck_effects(G.jokers.cards[i], function(cards)
+                            Cryptid.misprintize(cards, {
+                                min = lenient_bignum(result / 100),
+                                max = lenient_bignum(result / 100),
+                            }, nil, true)
+                        end)
+                    end
+                end
+            end
+            if check then
+                card_eval_status_text(card, "extra", nil, nil, nil, { message = "X"..tostring(result / 100), colour = G.C.GREEN })
+            end
+        end
+    end
+}
+end
+SMODS.Joker{ --Loaf
+    key = "loaf",
+    config = {
+        extra = {
+            chips_mod = 5,
+            chips = 0,
+        }
+    },
+    loc_txt = {
+        ['name'] = '洛夫',
+        ['text'] = {
+            [1] = '回合結束時，每個剩餘的出牌和棄牌',
+            [2] = '為這張小丑提供{C:blue}+#1#{}籌碼',
+            [3] = '{C:inactive}(目前{}{C:blue}+#2#{}{C:inactive}籌碼){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 4,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.chips_mod, card.ability.extra.chips}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                chips = card.ability.extra.chips
+            }
+        end
+        if context.end_of_round and context.game_over == false and context.main_eval  and not context.blueprint then
+            local chips_value = card.ability.extra.chips
+            return {
+                func = function()
+                    card.ability.extra.chips = (card.ability.extra.chips) + ((G.GAME.current_round.hands_left or 0) + (G.GAME.current_round.discards_left or 0)) * card.ability.extra.chips_mod
+                    return true
+                end,
+                message = localize('k_upgrade_ex')
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.chips = (card.ability.extra.chips) + ((G.GAME.current_round.hands_left or 0) + (G.GAME.current_round.discards_left or 0)) * card.ability.extra.chips_mod
+            return {
+                chips = card.ability.extra.chips
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --Tom
+    key = "tom",
+    config = {
+        extra = {
+            mult_mod = 2,
+            mult = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '湯姆',
+        ['text'] = {
+            [1] = '打出的牌{C:attention}4{}計分時，',
+            [2] = '這張小丑獲得{C:red}+#1#{}倍率',
+            [3] = '{C:inactive}(目前{}{C:red}+#2#{}{C:inactive}倍率){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 5,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.mult_mod, card.ability.extra.mult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  and not context.blueprint then
+            if context.other_card:get_id() == 4 then
+                return {
+                    func = function()
+                    card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+                        return true
+                    end,
+                    message = localize('k_upgrade_ex')
+                }
+            end
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --Ellen
+    key = "ellen",
+    config = {
+        extra = {
+            xmult = 3
+        }
+    },
+    loc_txt = {
+        ['name'] = '艾倫',
+        ['text'] = {
+            [1] = '若打出的牌型為',
+            [2] = '本回合首次打出，',
+            [3] = '{X:red,C:white}X#1#{}倍率'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 6,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.xmult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main  then
+            if not (G.GAME.hands[context.scoring_name] and G.GAME.hands[context.scoring_name].played_this_round > 1) then
+                return {
+                    Xmult = card.ability.extra.xmult
+                }
+            end
+        end
+        if context.forcetrigger then
+            return {
+                Xmult = card.ability.extra.xmult
             }
         end
     end

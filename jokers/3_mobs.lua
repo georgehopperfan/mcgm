@@ -1,3 +1,11 @@
+-- villagers
+
+
+
+
+
+-- hostile mobs
+
 
 SMODS.Joker{ --殭屍
     key = "zombie",

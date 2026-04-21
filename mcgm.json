@@ -7,7 +7,7 @@
   "description": "slowness is my specialty",
   "prefix": "mcgm",
   "main_file": "main.lua",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "priority": 2067,
   "badge_colour": "676767",
   "badge_text_colour": "FFFFFF",
