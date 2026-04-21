@@ -147,6 +147,69 @@ SMODS.Joker{ --椰子
     end
 }
 
+SMODS.Joker{ --棒棒糖
+    key = "lolipop",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '棒棒糖',
+        ['text'] = {
+            [1] = '這張小丑被賣出時，',
+            [2] = '賦予兩側的小丑{C:dark_edition}多彩{}及{C:dark_edition}易腐{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 2,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 5,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    in_pool = function(self, args)
+        return (
+            not args 
+            or args.source ~= 'jud' and args.source ~= 'rif' 
+            or args.source == 'sho' or args.source == 'buf' or args.source == 'rta' or args.source == 'sou' or args.source == 'uta' or args.source == 'wra'
+        )
+        and true
+    end,
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue + 1] = G.P_CENTERS.e_polychrome
+    end,
+    calculate = function(self, card, context)
+		if
+			(context.selling_self and not context.retrigger_joker and not context.blueprint_card)
+		then
+			for i = 1, #G.jokers.cards do
+				if G.jokers.cards[i] == card then
+					if i > 1 then
+						G.jokers.cards[i - 1]:set_edition({ polychrome = true })
+						G.jokers.cards[i - 1]:set_perishable()
+					end
+					if i < #G.jokers.cards then
+						G.jokers.cards[i + 1]:set_edition({ polychrome = true })
+						G.jokers.cards[i + 1]:set_perishable()
+					end
+				end
+			end
+		end
+    end
+}
 SMODS.Joker{ --奶白金
     key = "fortmilk",
     config = {

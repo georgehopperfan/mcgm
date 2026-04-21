@@ -512,6 +512,143 @@ SMODS.Joker{ --High Tier 1
     end
 }
 
+SMODS.Joker{ --Solo
+    key = "solo",
+    config = {
+        extra = {
+            mult_mod = 1,
+            mult = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Solo',
+        ['text'] = {
+            [1] = '若打出的牌型為{C:attention}高牌{}，',
+            [2] = '這張小丑獲得{C:red}+#1#{}倍率',
+            [3] = '{C:inactive}(目前{}{C:red}+#2#{}{C:inactive}倍率){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 5,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncomapt = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.mult_mod, card.ability.extra.mult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and context.cardarea == G.jokers  and not context.blueprint then
+            if context.scoring_name == "High Card" then
+                return {
+                    func = function()
+                        card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+                        return true
+                    end,
+                    message = localize('k_upgrade_ex')
+                }
+            end
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --Party
+    key = "party",
+    config = {
+        extra = {
+            chips = 0,
+            jokercount = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = 'Party',
+        ['text'] = {
+            [1] = '若打出並計分的牌數量',
+            [2] = '{C:attention}大於{}擁有的小丑數量，',
+            [3] = '這張小丑獲得{C:blue}4{}倍',
+            [4] = '小丑數量的{C:blue}籌碼{}',
+            [5] = '{C:inactive}(目前{}{C:blue}+#1#{}{C:inactive}籌碼){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 6,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.chips, #(G.jokers and (G.jokers and G.jokers.cards or {}) or {})}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and context.cardarea == G.jokers  and not context.blueprint then
+            if to_big(#context.full_hand) > to_big(#(G.jokers and G.jokers.cards or {})) then
+                return {
+                    func = function()
+                        card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 4
+                        return true
+                    end,
+                    message = localize('k_upgrade_ex')
+                }
+            end
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                chips = card.ability.extra.chips
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 4
+            return {
+                chips = card.ability.extra.chips
+            }
+        end
+    end
+}
 SMODS.Joker{ --Attribute Swapping
     key = "attributeswapping",
     config = {
