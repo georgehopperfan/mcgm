@@ -593,7 +593,7 @@ SMODS.Joker{ --Party
         ['text'] = {
             [1] = '若打出並計分的牌數量',
             [2] = '{C:attention}大於{}擁有的小丑數量，',
-            [3] = '這張小丑獲得{C:blue}4{}倍',
+            [3] = '這張小丑獲得{C:blue}3{}倍',
             [4] = '小丑數量的{C:blue}籌碼{}',
             [5] = '{C:inactive}(目前{}{C:blue}+#1#{}{C:inactive}籌碼){}'
         },
@@ -626,7 +626,7 @@ SMODS.Joker{ --Party
     
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.jokers  and not context.blueprint then
-            if to_big(#context.full_hand) > to_big(#(G.jokers and G.jokers.cards or {})) then
+            if to_big(#context.scoring_hand) > to_big(#(G.jokers and G.jokers.cards or {})) then
                 return {
                     func = function()
                         card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 4
@@ -642,7 +642,7 @@ SMODS.Joker{ --Party
             }
         end
         if context.forcetrigger then
-            card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 4
+            card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 3
             return {
                 chips = card.ability.extra.chips
             }
