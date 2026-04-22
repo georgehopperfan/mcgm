@@ -123,10 +123,8 @@ SMODS.Joker{ --MACE ATTACK
             for k, v in ipairs(context.scoring_hand) do
                 if v.base.nominal < low then
                     low = v.base.nominal
-                    break
                 elseif v.base.nominal > high then
                     high = v.base.nominal
-                    break
                 end
             end
             if high - low > 0 then
