@@ -94,13 +94,13 @@ SMODS.Joker{ --椰子
     config = {
         extra = {
             hand_size_increase = '1',
-            mult = 25
+            chips = 125
         }
     },
     loc_txt = {
         ['name'] = '椰子',
         ['text'] = {
-            [1] = '{C:red}+#1#{}倍率',
+            [1] = '{C:blue}+#1#{}籌碼',
             [2] = '{C:attention}-1{}手牌上限'
         },
         ['unlock'] = {
@@ -127,13 +127,13 @@ SMODS.Joker{ --椰子
     
     loc_vars = function(self, info_queue, card)
         
-        return {vars = {card.ability.extra.mult}}
+        return {vars = {card.ability.extra.chips}}
     end,
     
     calculate = function(self, card, context)
         if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
             return {
-                mult = card.ability.extra.mult
+                chips = card.ability.extra.chips
             }
         end
     end,

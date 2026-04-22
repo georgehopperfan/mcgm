@@ -1,6 +1,619 @@
 -- villagers
 
 
+SMODS.Joker{ --無業
+    key = "nojob",
+    config = {
+        extra = {
+            shop_slots_increase = '2'
+        }
+    },
+    loc_txt = {
+        ['name'] = '無業',
+        ['text'] = {
+            [1] = '{C:attention}+2{}商店欄位'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 4,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+    end,
+    
+    add_to_deck = function(self, card, from_debuff)
+        change_shop_size(2)
+    end,
+    
+    remove_from_deck = function(self, card, from_debuff)
+        change_shop_size(-2)
+    end
+}
+
+SMODS.Joker{ --傻子
+    key = "nitwit",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '傻子',
+        ['text'] = {
+            [1] = '請輸入文本'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 2,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 10,
+    rarity = 3,
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main  and not context.blueprint then
+            local created_joker = false
+            if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                created_joker = true
+                G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_nitwit' })
+                        if joker_card then
+                            
+                            
+                        end
+                        G.GAME.joker_buffer = 0
+                        return true
+                    end
+                }))
+            end
+            return {
+                message = created_joker and localize('k_plus_joker') or nil
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --工具匠
+    key = "toolsmith",
+    config = {
+        extra = {
+            mult_mod = 1,
+            mult = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '工具匠',
+        ['text'] = {
+            [1] = '從商店購買牌時，',
+            [2] = '這張小丑獲得{C:red}+#1#{}倍率',
+            [3] = '{C:inactive}(目前{}{C:red}+#2#{}{C:inactive}倍率){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 5,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.mult_mod, card.ability.extra.mult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.buying_card  and not context.blueprint then
+            return {
+                func = function()
+                    card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+                    return true
+                end,
+                message = localize('k_upgrade_ex')
+            }
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --製箭師
+    key = "fletcher",
+    config = {
+        extra = {
+            req = 4,
+            played = 0,
+            money = 1,
+            cardsinhand = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '製箭師',
+        ['text'] = {
+            [1] = '每打出{C:attention}#1#{}張牌{C:inactive}(#2#){}',
+            [2] = '賺取{C:gold}$#3#{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 6,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.req, card.ability.extra.played, card.ability.extra.money, (#(G.hand and G.hand.cards or {}) or 0)}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and context.cardarea == G.jokers  and not context.blueprint then
+            return {
+                func = function()
+                    card.ability.extra.played = (card.ability.extra.played) + #context.full_hand
+                    return true
+                end
+            }
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            if to_big(card.ability.extra.played) >= to_big(card.ability.extra.req) then
+                local dollar = math.floor(card.ability.extra.played / card.ability.extra.req)
+                return {
+                    func = function()
+                        ease_dollars(dollar * card.ability.extra.money)
+                        card.ability.extra.played = card.ability.extra.played - (dollar * card.ability.extra.req)
+                    return true
+                    end,
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "$"..tostring(dollar * card.ability.extra.money), colour = G.C.MONEY})
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --農夫
+    key = "farmer",
+    config = {
+        extra = {
+            discount_amount = '2'
+        }
+    },
+    loc_txt = {
+        ['name'] = '農夫',
+        ['text'] = {
+            [1] = '商店的消耗牌便宜{C:money}$2{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 7,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+    end,
+    
+    add_to_deck = function(self, card, from_debuff)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                for k, v in pairs(G.I.CARD) do
+                if v.set_cost then v:set_cost() end
+                end
+                return true
+            end
+        }))
+    end,
+    
+    remove_from_deck = function(self, card, from_debuff)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                for k, v in pairs(G.I.CARD) do
+                if v.set_cost then v:set_cost() end
+                end
+                return true
+            end
+        }))
+    end
+} 
+      
+local card_set_cost_ref = Card.set_cost
+function Card:set_cost()
+    card_set_cost_ref(self)
+    
+    if next(SMODS.find_card("j_mcgm_farmer")) then
+        if (self.ability.set == 'Tarot' or self.ability.set == 'Planet' or self.ability.set == 'Spectral') then
+            self.cost = math.max(0, self.cost - (2))
+        end
+    end
+    
+    self.sell_cost = math.max(1, math.floor(self.cost / 2)) + (self.ability.extra_value or 0)
+    self.sell_cost_label = self.facing == 'back' and '?' or self.sell_cost
+end
+
+SMODS.Joker{ --製圖師
+    key = "cartographer",
+    config = {
+        extra = {
+            odds = 2
+        }
+    },
+    loc_txt = {
+        ['name'] = '製圖師',
+        ['text'] = {
+            [1] = '跳過盲注時，',
+            [2] = '{C:green}#1#/#2#{}機率產生一個{C:attention}雙倍標籤{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 8,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_cartographer') 
+        return {vars = {new_numerator, new_denominator}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.skip_blind  then
+            if true then
+                if SMODS.pseudorandom_probability(card, 'group_0_f72f62ed', 1, card.ability.extra.odds, 'j_mcgm_cartographer', false) then
+                    SMODS.calculate_effect({func = function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local tag = Tag("tag_double")
+                                if tag.name == "Orbital Tag" then
+                                    local _poker_hands = {}
+                                    for k, v in pairs(G.GAME.hands) do
+                                        if v.visible then
+                                            _poker_hands[#_poker_hands + 1] = k
+                                        end
+                                    end
+                                    tag.ability.orbital_hand = pseudorandom_element(_poker_hands, "jokerforge_orbital")
+                                end
+                                tag:set_ability()
+                                add_tag(tag)
+                                play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
+                                return true
+                            end
+                        }))
+                        return true
+                    end}, card)
+                end
+            end
+        end
+        if context.forcetrigger then
+                    SMODS.calculate_effect({func = function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local tag = Tag("tag_double")
+                                if tag.name == "Orbital Tag" then
+                                    local _poker_hands = {}
+                                    for k, v in pairs(G.GAME.hands) do
+                                        if v.visible then
+                                            _poker_hands[#_poker_hands + 1] = k
+                                        end
+                                    end
+                                    tag.ability.orbital_hand = pseudorandom_element(_poker_hands, "jokerforge_orbital")
+                                end
+                                tag:set_ability()
+                                add_tag(tag)
+                                play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
+                                return true
+                            end
+                        }))
+                        return true
+                    end}, card)
+        end
+    end
+}
+
+SMODS.Joker{ --製甲師
+    key = "armorsmith",
+    config = {
+        extra = {
+            bought = 0,
+            xmult_mod = 0.2,
+            xmult = 1
+        }
+    },
+    loc_txt = {
+        ['name'] = '製甲師',
+        ['text'] = {
+            [1] = '每從商店購買',
+            [2] = '{C:attention}4{}張{C:inactive}(#1#){}卡牌時，',
+            [3] = '這張小丑獲得{X:red,C:white}X#2#{}倍率',
+            [4] = '{C:inactive}(目前{}{X:red,C:white}X#3#{}{C:inactive}倍率){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 9,
+        y = 4
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.bought, card.ability.extra.xmult_mod, card.ability.extra.xmult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.buying_card  and not context.blueprint then
+            if to_big(card.ability.extra.bought) < to_big(3) then
+                return {
+                    func = function()
+                        card.ability.extra.bought = (card.ability.extra.bought) + 1
+                        return true
+                    end
+                }
+            else
+                return {
+                    func = function()
+                        card.ability.extra.bought = 0
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            card.ability.extra.xmult = (card.ability.extra.xmult) + card.ability.extra.xmult_mod
+                            return true
+                        end,
+                        message = localize('k_upgrade_ex')
+                    }
+                }
+            end
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                Xmult = card.ability.extra.xmult
+            }
+        end
+        if context.forcetrigger then
+            card.ability.extra.xmult = (card.ability.extra.xmult) + card.ability.extra.xmult_mod
+            return {
+                Xmult = card.ability.extra.xmult
+            }
+        end
+    end
+}
+SMODS.Joker{ --圖書管理員
+    key = "librarian",
+    config = {
+        extra = {
+            odds = 4
+        }
+    },
+    loc_txt = {
+        ['name'] = '圖書管理員',
+        ['text'] = {
+            [1] = '重骰商店時，',
+            [2] = '{C:green}#1#/#2#{}機率產生一張',
+            [3] = '隨機{C:spectral}幻靈牌{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 1,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 8,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_librarian') 
+        return {vars = {new_numerator, new_denominator}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.reroll_shop  then
+            if true then
+                if SMODS.pseudorandom_probability(card, 'group_0_7cec881a', 1, card.ability.extra.odds, 'j_mcgm_librarian', false) then
+                    SMODS.calculate_effect({func = function()
+                        
+                        for i = 1, math.min(1, G.consumeables.config.card_limit - #G.consumeables.cards) do
+                            G.E_MANAGER:add_event(Event({
+                                trigger = 'after',
+                                delay = 0.4,
+                                func = function()
+                                    play_sound('timpani')
+                                    SMODS.add_card({ set = 'Spectral', soulable = true, })                            
+                                    card:juice_up(0.3, 0.5)
+                                    return true
+                                end
+                            }))
+                        end
+                        delay(0.6)
+                        
+                        if created_consumable then
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_spectral'), colour = G.C.SECONDARY_SET.Spectral})
+                        end
+                        return true
+                    end}, card)
+                end
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --神職人員
+    key = "cleric",
+    config = {
+        extra = {
+            xmult = 2.6
+        }
+    },
+    loc_txt = {
+        ['name'] = '神職人員',
+        ['text'] = {
+            [1] = '打出並計分的{C:attention}倍率牌{}',
+            [2] = '提供{X:red,C:white}X#1#{}倍率'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 0,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.xmult}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if SMODS.get_enhancements(context.other_card)["m_mult"] == true then
+                return {
+                    Xmult = card.ability.extra.xmult
+                }
+            end
+        end
+        if context.forcetrigger then
+            return {
+                Xmult = card.ability.extra.xmult
+            }
+        end
+    end
+}
 
 
 

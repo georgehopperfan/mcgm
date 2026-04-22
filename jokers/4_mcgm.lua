@@ -629,7 +629,7 @@ SMODS.Joker{ --Party
             if to_big(#context.scoring_hand) > to_big(#(G.jokers and G.jokers.cards or {})) then
                 return {
                     func = function()
-                        card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 4
+                        card.ability.extra.chips = (card.ability.extra.chips) + (#(G.jokers and G.jokers.cards or {})) * 3
                         return true
                     end,
                     message = localize('k_upgrade_ex')

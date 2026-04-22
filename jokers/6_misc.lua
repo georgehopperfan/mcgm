@@ -294,6 +294,57 @@ G.FUNCS.can_select_card = function(e)
 		can_select_card_ref(e)
 	end
 end
+
+SMODS.Joker{ --Chocolatebar Quotes
+    key = "chocolatebarquotes",
+    config = {
+    },
+    loc_txt = {
+        ['name'] = 'Chocolatebar名言',
+        ['text'] = {
+            [1] = 'In today\'s {C:attention}video{}, {C:attention}five{} of my friends',
+            [2] = 'try {C:attention}hunt{} me down and {C:attention}stop{} me',
+            [3] = 'from beating {C:attention}Minecraft{}.',
+            [4] = 'Can they stop me from beating the',
+            [5] = '{C:dark_edition}ender dragon{} or will I {C:attention}survive{}?',
+            [6] = 'This is it, {C:blue}Minecraft manhunt versus 5 hunters{},',
+            [7] = 'the finale. Also, only a {C:green}small percentage{}',
+            [8] = 'of people that watch my videos',
+            [9] = 'are actually {C:attention}subscribed{}, so consider subscribing.',
+            [10] = 'it\'s {C:green}free{} and you can always change your mind later.',
+            [11] = '{C:attention}Enjoy.{}',
+            [12] = '{C:inactive}實際效果:每個cbqpl的Chocolatebar名言提供+1倍率{}'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 8,
+        y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 9,
+    rarity = 3,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
+                return {
+                    mult = 72
+                }
+        end
+    end
+}
 SMODS.Joker{ --Bloon Exclusion Zone (v38-53)
     key = "bez",
     config = {
@@ -405,60 +456,47 @@ SMODS.Joker{ --Carrier Flagship
         end
     end
 }
-SMODS.Joker{ --Stupid Owl Stall
-    key = "stupidowlstall",
+SMODS.Joker{ --Barracuda
+    key = "barracuda",
     config = {
         extra = {
-            hands = 1,
-            chips = 0,
-            odds = 2,
-            round = 0
+            repetitions = 1
         }
     },
     loc_txt = {
-        ['name'] = 'Stupid Owl Stall',
+        ['name'] = '梭魚',
         ['text'] = {
-            [1] = '出牌時有{C:green}#4#/#5#{}機率',
-            [2] = '{C:blue}+#1#{}出牌次數並{X:blue,C:white}X#2#{}籌碼'
+            [1] = '重新觸發打出的',
+            [2] = '{C:attention}6,7,8,9,10{}'
         },
         ['unlock'] = {
             [1] = ''
         }
     },
     pos = {
-        x = 9,
-        y = 5
+        x = 6,
+        y = 3
     },
     display_size = {
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 7,
+    cost = 6,
     rarity = 2,
     blueprint_compat = true,
-    demicoloncompat = true,
     eternal_compat = true,
     perishable_compat = true,
     unlocked = true,
     discovered = true,
     atlas = 'CustomJokers',
 
-    loc_vars = function(self, info_queue, card)
-        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall') 
-        return {vars = {card.ability.extra.hands, card.ability.extra.chips, card.ability.extra.round, new_numerator, new_denominator}}
-    end,
-
     calculate = function(self, card, context)
-        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
-            if true then
-                if SMODS.pseudorandom_probability(card, 'group_0_e9967624', 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall', false) then
-              SMODS.calculate_effect({x_chips = card.ability.extra.chips}, card)
-                        SMODS.calculate_effect({func = function()
-                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "+"..tostring(card.ability.extra.hands).." Hand", colour = G.C.GREEN})
-                G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + card.ability.extra.hands
-                return true
-            end}, card)
-          end
+        if context.repetition and context.cardarea == G.play  then
+            if (context.other_card:get_id() == 6 or context.other_card:get_id() == 7 or context.other_card:get_id() == 8 or context.other_card:get_id() == 9 or context.other_card:get_id() == 10) then
+                return {
+                    repetitions = card.ability.extra.repetitions,
+                    message = "Again!"
+                }
             end
         end
     end
@@ -783,51 +821,65 @@ SMODS.Joker{ --King George
         end
     end
 }
-SMODS.Joker{ --Barracuda
-    key = "barracuda",
+SMODS.Joker{ --Stupid Owl Stall
+    key = "stupidowlstall",
     config = {
         extra = {
-            repetitions = 1
+            hands = 1,
+            chips = 0,
+            odds = 2,
+            round = 0
         }
     },
     loc_txt = {
-        ['name'] = '梭魚',
+        ['name'] = 'Stupid Owl Stall',
         ['text'] = {
-            [1] = '重新觸發打出的',
-            [2] = '{C:attention}6,7,8,9,10{}'
+            [1] = '出牌時有{C:green}#4#/#5#{}機率',
+            [2] = '{C:blue}+#1#{}出牌次數並{X:blue,C:white}X#2#{}籌碼'
         },
         ['unlock'] = {
             [1] = ''
         }
     },
     pos = {
-        x = 6,
-        y = 3
+        x = 9,
+        y = 5
     },
     display_size = {
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 6,
+    cost = 7,
     rarity = 2,
     blueprint_compat = true,
+    demicoloncompat = true,
     eternal_compat = true,
     perishable_compat = true,
     unlocked = true,
     discovered = true,
     atlas = 'CustomJokers',
 
+    loc_vars = function(self, info_queue, card)
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall') 
+        return {vars = {card.ability.extra.hands, card.ability.extra.chips, card.ability.extra.round, new_numerator, new_denominator}}
+    end,
+
     calculate = function(self, card, context)
-        if context.repetition and context.cardarea == G.play  then
-            if (context.other_card:get_id() == 6 or context.other_card:get_id() == 7 or context.other_card:get_id() == 8 or context.other_card:get_id() == 9 or context.other_card:get_id() == 10) then
-                return {
-                    repetitions = card.ability.extra.repetitions,
-                    message = "Again!"
-                }
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
+            if true then
+                if SMODS.pseudorandom_probability(card, 'group_0_e9967624', 1, card.ability.extra.odds, 'j_mcgm_stupidowlstall', false) then
+              SMODS.calculate_effect({x_chips = card.ability.extra.chips}, card)
+                        SMODS.calculate_effect({func = function()
+                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "+"..tostring(card.ability.extra.hands).." Hand", colour = G.C.GREEN})
+                G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + card.ability.extra.hands
+                return true
+            end}, card)
+          end
             end
         end
     end
 }
+
 if Cryptid then
 SMODS.Joker{ --Ninja Kiwi balance be like
     key = "nksucks",
