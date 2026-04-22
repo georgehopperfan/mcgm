@@ -1,94 +1,70 @@
-SMODS.Joker{ --Sports drink
-    key = "sportsdrink",
+SMODS.Joker{ --Bing Bong
+    key = "bingbong",
     config = {
         extra = {
-            chips = 150,
-            chipsmod = 10
+            remain = 5,
+            joker_slots0 = 1
         }
     },
     loc_txt = {
-        ['name'] = '寶礦力',
+        ['name'] = 'Bing Bong',
         ['text'] = {
-            [1] = '若剩餘出牌數小於{C:blue}2{}，',
-            [2] = '{C:blue}+#1#{}籌碼，結算完畢後{C:blue}-#2#{}',
+            [1] = '{C:green}i am bing bong{} {C:inactive}(#1#){}'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
         }
     },
     pos = {
-        x = 3,
-        y = 0
+        x = 4,
+        y = 2
     },
     display_size = {
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 4,
+    cost = 3,
     rarity = 1,
-    blueprint_compat = true,
-    demicoloncompat = true,
+    blueprint_compat = false,
     eternal_compat = false,
-    perishable_compat = true,
+    perishable_compat = false,
     unlocked = true,
     discovered = true,
     atlas = 'CustomJokers',
     
     loc_vars = function(self, info_queue, card)
         
-        return {vars = {card.ability.extra.chips, card.ability.extra.chipsmod}}
+        return {vars = {card.ability.extra.remain}}
     end,
     
     calculate = function(self, card, context)
-        if context.forcetrigger then
-            return {
-                chips = card.ability.extra.chips
-            }
-        end
-        if context.cardarea == G.jokers and context.joker_main  then
-            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
+        if context.ante_change  and not context.blueprint then
+            if to_big(card.ability.extra.remain) > to_big(1) then
                 return {
-                    chips = card.ability.extra.chips
-                }
-            end
-        end
-        if context.after and context.cardarea == G.jokers  and not context.blueprint then
-            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
-                if to_big(card.ability.extra.chips) > to_big(card.ability.extra.chipsmod) then
-                    return {
-                        func = function()
-                            card.ability.extra.chips = math.max(0, (card.ability.extra.chips) - card.ability.extra.chipsmod)
-                            return true
-                        end,
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "-"..tostring(card.ability.extra.chipsmod), colour = G.C.BLUE})
-                    }
-                else
-                    return {
-                        func = function()
-                            local target_joker = card
-                        
-                        if target_joker then
-                            if target_joker.ability.eternal then
-                                target_joker.ability.eternal = nil
-                            end
-                            target_joker.getting_sliced = true
-                            G.E_MANAGER:add_event(Event({
-                                func = function()
-                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
-                                    return true
-                                end
-                            }))
-                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Eaten!", colour = G.C.RED})
-                        end
+                    func = function()
+                        card.ability.extra.remain = math.max(0, (card.ability.extra.remain) - 1)
                         return true
                     end
+                }
+            elseif to_big(card.ability.extra.remain) <= to_big(1) then
+                return {
+                    func = function()
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "You Peaked!", colour = G.C.DARK_EDITION})
+                        G.jokers.config.card_limit = G.jokers.config.card_limit + 1
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            card.ability.extra.remain = 5
+                            return true
+                        end,
+                        colour = G.C.BLUE
                     }
-                end
+                }
             end
         end
     end
 }
-
 SMODS.Joker{ --椰子
     key = "coconut",
     config = {
@@ -208,6 +184,96 @@ SMODS.Joker{ --棒棒糖
 				end
 			end
 		end
+    end
+}
+SMODS.Joker{ --Sports drink
+    key = "sportsdrink",
+    config = {
+        extra = {
+            xchips = 2.5,
+            xchipsmod = 0.1
+        }
+    },
+    loc_txt = {
+        ['name'] = '寶礦力',
+        ['text'] = {
+            [1] = '若剩餘出牌數小於{C:blue}2{}，',
+            [2] = '{X:blue,C:white}X#1#{}籌碼，結算完畢後{X:blue,C:white}-X#2#{}',
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 3,
+        y = 0
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 5,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = false,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.xchips, card.ability.extra.xchipsmod}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.forcetrigger then
+            return {
+                x_chips = card.ability.extra.xchips
+            }
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
+                return {
+                    x_chips = card.ability.extra.xchips
+                }
+            end
+        end
+        if context.after and context.cardarea == G.jokers  and not context.blueprint then
+            if to_big(G.GAME.current_round.hands_left) < to_big(2) then
+                if to_big(card.ability.extra.xchips) > to_big(card.ability.extra.xchipsmod) then
+                    return {
+                        func = function()
+                            card.ability.extra.xchips = math.max(0, (card.ability.extra.xchips) - card.ability.extra.xchipsmod)
+                            return true
+                        end,
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "-"..tostring(card.ability.extra.xchipsmod), colour = G.C.BLUE})
+                    }
+                else
+                    return {
+                        func = function()
+                            local target_joker = card
+                        
+                        if target_joker then
+                            if target_joker.ability.eternal then
+                                target_joker.ability.eternal = nil
+                            end
+                            target_joker.getting_sliced = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
+                                    return true
+                                end
+                            }))
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "Eaten!", colour = G.C.RED})
+                        end
+                        return true
+                    end
+                    }
+                end
+            end
+        end
     end
 }
 SMODS.Joker{ --奶白金
@@ -357,73 +423,6 @@ SMODS.Joker{ --潘朵拉的午餐盒
                     }
                 }
             }
-        end
-    end
-}
-SMODS.Joker{ --Bing Bong
-    key = "bingbong",
-    config = {
-        extra = {
-            remain = 5,
-            joker_slots0 = 1
-        }
-    },
-    loc_txt = {
-        ['name'] = 'Bing Bong',
-        ['text'] = {
-            [1] = '{C:green}i am bing bong{} {C:inactive}(#1#){}'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 4,
-        y = 2
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 3,
-    rarity = 1,
-    blueprint_compat = false,
-    eternal_compat = false,
-    perishable_compat = false,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-    
-    loc_vars = function(self, info_queue, card)
-        
-        return {vars = {card.ability.extra.remain}}
-    end,
-    
-    calculate = function(self, card, context)
-        if context.ante_change  and not context.blueprint then
-            if to_big(card.ability.extra.remain) > to_big(1) then
-                return {
-                    func = function()
-                        card.ability.extra.remain = math.max(0, (card.ability.extra.remain) - 1)
-                        return true
-                    end
-                }
-            elseif to_big(card.ability.extra.remain) <= to_big(1) then
-                return {
-                    func = function()
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = "You Peaked!", colour = G.C.DARK_EDITION})
-                        G.jokers.config.card_limit = G.jokers.config.card_limit + 1
-                        return true
-                    end,
-                    extra = {
-                        func = function()
-                            card.ability.extra.remain = 5
-                            return true
-                        end,
-                        colour = G.C.BLUE
-                    }
-                }
-            end
         end
     end
 }

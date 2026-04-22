@@ -217,7 +217,8 @@ SMODS.Joker{ --刷鐵機
     loc_txt = {
         ['name'] = '刷鐵機',
         ['text'] = {
-            [1] = '進入盲注時，生成一個鐵小丑'
+            [1] = '進入盲注時，',
+            [2] = '生成一個鐵小丑'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
