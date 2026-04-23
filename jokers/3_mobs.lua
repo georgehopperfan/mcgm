@@ -490,7 +490,7 @@ SMODS.Joker{ --圖書管理員
     key = "librarian",
     config = {
         extra = {
-            odds = 4
+            odds = 3
         }
     },
     loc_txt = {
