@@ -165,7 +165,7 @@ SMODS.Joker{ --Iciclez_
     loc_txt = {
         ['name'] = 'Iciclez_',
         ['text'] = {
-            [1] = '擊敗{C:attention}Boss盲注{}時',
+            [1] = '進入{C:attention}Boss盲注{}時',
             [2] = '建立兩個{C:attention}小帳{}'
         },
         ['unlock'] = {
@@ -191,7 +191,7 @@ SMODS.Joker{ --Iciclez_
     atlas = 'CustomJokers',
     
     calculate = function(self, card, context)
-        if context.end_of_round and context.main_eval and G.GAME.blind.boss or context.forcetrigger then
+        if context.setting_blind and G.GAME.blind.boss or context.forcetrigger then
             if true then
                 for i = 1, 2 do
                     SMODS.calculate_effect({func = function()
@@ -901,8 +901,8 @@ SMODS.Joker{ --Ninja Kiwi balance be like
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 7,
-    rarity = 3,
+    cost = 20,
+    rarity = 4,
     blueprint_compat = true,
     eternal_compat = true,
     perishable_compat = true,

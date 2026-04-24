@@ -1,17 +1,15 @@
 -- villagers
 
-
 SMODS.Joker{ --無業
     key = "nojob",
     config = {
         extra = {
-            shop_slots_increase = '2'
         }
     },
     loc_txt = {
         ['name'] = '無業',
         ['text'] = {
-            [1] = '{C:attention}+2{}商店欄位'
+            [1] = '根據下一張使用的{C:attention}消耗牌{}獲得職業'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
@@ -28,23 +26,136 @@ SMODS.Joker{ --無業
     cost = 4,
     rarity = 1,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     perishable_compat = true,
     unlocked = true,
     discovered = true,
     atlas = 'CustomJokers',
     
     calculate = function(self, card, context)
-    end,
-    
-    add_to_deck = function(self, card, from_debuff)
-        change_shop_size(2)
-    end,
-    
-    remove_from_deck = function(self, card, from_debuff)
-        change_shop_size(-2)
+        if context.using_consumeable  and not context.blueprint then
+            if context.consumeable and context.consumeable.ability.set == 'Planet' then
+                return {
+                    func = function()
+                        local target_joker = card
+                        
+                        if target_joker then
+                            target_joker.getting_sliced = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
+                                    return true
+                                end
+                            }))
+                        end
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            
+                            local created_joker = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_toolsmith' })
+                                    if joker_card then
+                                        
+                                        
+                                    end
+                                    
+                                    return true
+                                end
+                            }))
+                            
+                            if created_joker then
+                            end
+                            return true
+                        end,
+                        colour = G.C.BLUE
+                    }
+                }
+            elseif context.consumeable and context.consumeable.ability.set == 'Tarot' then
+                return {
+                    func = function()
+                        local target_joker = card
+                        
+                        if target_joker then
+                            target_joker.getting_sliced = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
+                                    return true
+                                end
+                            }))
+                        end
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            
+                            local created_joker = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_cartographer' })
+                                    if joker_card then
+                                        
+                                        
+                                    end
+                                    
+                                    return true
+                                end
+                            }))
+                            
+                            if created_joker then
+                            end
+                            return true
+                        end,
+                        colour = G.C.BLUE
+                    }
+                }
+            elseif context.consumeable and context.consumeable.ability.set == 'Spectral' then
+                return {
+                    func = function()
+                        local target_joker = card
+                        
+                        if target_joker then
+                            target_joker.getting_sliced = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    target_joker:start_dissolve({G.C.RED}, nil, 1.6)
+                                    return true
+                                end
+                            }))
+                        end
+                        return true
+                    end,
+                    extra = {
+                        func = function()
+                            
+                            local created_joker = true
+                            G.E_MANAGER:add_event(Event({
+                                func = function()
+                                    local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_librarian' })
+                                    if joker_card then
+                                        
+                                        
+                                    end
+                                    
+                                    return true
+                                end
+                            }))
+                            
+                            if created_joker then
+                            end
+                            return true
+                        end,
+                        colour = G.C.BLUE
+                    }
+                }
+            end
+        end
     end
 }
+
 
 SMODS.Joker{ --傻子
     key = "nitwit",
@@ -313,14 +424,12 @@ SMODS.Joker{ --製圖師
     key = "cartographer",
     config = {
         extra = {
-            odds = 2
         }
     },
     loc_txt = {
         ['name'] = '製圖師',
         ['text'] = {
-            [1] = '跳過盲注時，',
-            [2] = '{C:green}#1#/#2#{}機率產生一個{C:attention}雙倍標籤{}'
+            [1] = '{C:attention}+2{}商店欄位'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
@@ -344,63 +453,15 @@ SMODS.Joker{ --製圖師
     discovered = true,
     atlas = 'CustomJokers',
     
-    loc_vars = function(self, info_queue, card)
-        
-        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_cartographer') 
-        return {vars = {new_numerator, new_denominator}}
+    calculate = function(self, card, context)
     end,
     
-    calculate = function(self, card, context)
-        if context.skip_blind  then
-            if true then
-                if SMODS.pseudorandom_probability(card, 'group_0_f72f62ed', 1, card.ability.extra.odds, 'j_mcgm_cartographer', false) then
-                    SMODS.calculate_effect({func = function()
-                        G.E_MANAGER:add_event(Event({
-                            func = function()
-                                local tag = Tag("tag_double")
-                                if tag.name == "Orbital Tag" then
-                                    local _poker_hands = {}
-                                    for k, v in pairs(G.GAME.hands) do
-                                        if v.visible then
-                                            _poker_hands[#_poker_hands + 1] = k
-                                        end
-                                    end
-                                    tag.ability.orbital_hand = pseudorandom_element(_poker_hands, "jokerforge_orbital")
-                                end
-                                tag:set_ability()
-                                add_tag(tag)
-                                play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
-                                return true
-                            end
-                        }))
-                        return true
-                    end}, card)
-                end
-            end
-        end
-        if context.forcetrigger then
-                    SMODS.calculate_effect({func = function()
-                        G.E_MANAGER:add_event(Event({
-                            func = function()
-                                local tag = Tag("tag_double")
-                                if tag.name == "Orbital Tag" then
-                                    local _poker_hands = {}
-                                    for k, v in pairs(G.GAME.hands) do
-                                        if v.visible then
-                                            _poker_hands[#_poker_hands + 1] = k
-                                        end
-                                    end
-                                    tag.ability.orbital_hand = pseudorandom_element(_poker_hands, "jokerforge_orbital")
-                                end
-                                tag:set_ability()
-                                add_tag(tag)
-                                play_sound('holo1', 1.2 + math.random() * 0.1, 0.4)
-                                return true
-                            end
-                        }))
-                        return true
-                    end}, card)
-        end
+    add_to_deck = function(self, card, from_debuff)
+        change_shop_size(2)
+    end,
+    
+    remove_from_deck = function(self, card, from_debuff)
+        change_shop_size(-2)
     end
 }
 
@@ -409,7 +470,7 @@ SMODS.Joker{ --製甲師
     config = {
         extra = {
             bought = 0,
-            xmult_mod = 0.2,
+            xmult_mod = 0.25,
             xmult = 1
         }
     },
@@ -765,7 +826,7 @@ SMODS.Joker{ --骷髏
     key = "skeleton",
     config = {
         extra = {
-            mult = 20,
+            mult = 25,
             odds = 2
         }
     },
