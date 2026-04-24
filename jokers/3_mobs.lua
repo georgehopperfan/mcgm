@@ -646,7 +646,7 @@ SMODS.Joker{ --神職人員
         h = 95 * 1
     },
     cost = 6,
-    rarity = 2,
+    rarity = 3,
     blueprint_compat = true,
     demicoloncompat = true,
     eternal_compat = true,
