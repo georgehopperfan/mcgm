@@ -1,3 +1,207 @@
+SMODS.Joker{ --MACE ATTACK
+    key = "maceattack",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = 'MACE ATTACK',
+        ['text'] = {
+            [1] = '打出並計分的牌中',
+            [2] = '最高點數和最低點數每差1點',
+            [3] = '{X:red,C:white}X0.6{}倍率'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 0,
+        y = 0
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            local low, high = context.scoring_hand[1].base.nominal, context.scoring_hand[1].base.nominal
+            for k, v in ipairs(context.scoring_hand) do
+                if v.base.nominal < low then
+                    low = v.base.nominal
+                elseif v.base.nominal > high then
+                    high = v.base.nominal
+                end
+            end
+            if high - low > 0 then
+                return {
+                    Xmult = 0.6 * lenient_bignum((high - low) or 0)
+                }
+            else
+                return {
+                    Xmult = 0,
+                    card_eval_status_text(card, "extra", nil, nil, nil, { message = "X0 Mult", colour = G.C.RED })
+                }
+            end
+        end
+    end
+
+}
+
+SMODS.Joker{ --trident
+    key = "trident",
+    config = {
+        extra = {
+            mult = 1,
+            scale = 0.3
+        }
+    },
+    loc_txt = {
+        ['name'] = '三叉戟',
+        ['text'] = {
+            [1] = '若打出的牌型為{C:attention}三條{}，',
+            [2] = '{X:red,C:white}X倍率{}成長一次',
+            [3] = '成長速率取決於當前{X:red,C:white}X倍率{}',
+            [4] = '與{X:red,C:white}X3{}倍率的距離',
+            [5] = '{C:inactive}(當前{}{X:red,C:white}X#1#{}{C:inactive}倍率，下次成長{}{X:red,C:white}+#2#{}{C:inactive}){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 3,
+        y = 7
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = false,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.mult, card.ability.extra.scale}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.before and context.cardarea == G.jokers  and not context.blueprint then
+            if context.scoring_name == "Three of a Kind" then
+                return {
+                    func = function()
+                        card.ability.extra.mult = lenient_bignum(card.ability.extra.mult) + lenient_bignum(card.ability.extra.scale)
+                        return true
+                    end,
+                    message = localize('k_upgrade_ex'),
+                    extra = {
+                        func = function()
+                            card.ability.extra.scale = lenient_bignum(math.abs(3 - card.ability.extra.mult) * 0.1 + 0.1)
+                            return true
+                        end,
+                        colour = G.C.BLUE
+                    }
+                }
+            end
+        end
+        if context.cardarea == G.jokers and context.joker_main  then
+            return {
+                Xmult = card.ability.extra.mult
+            }
+        end
+        if context.forcetrigger then
+            return {
+                func = function()
+                        card.ability.extra.mult = lenient_bignum(card.ability.extra.mult) + lenient_bignum(card.ability.extra.scale)
+                        return true
+                end,
+                message = localize('k_upgrade_ex'),
+                extra = {
+                    func = function()
+                        card.ability.extra.scale = lenient_bignum(math.abs(3 - card.ability.extra.mult) * 0.1 + 0.1)
+                        return true
+                    end,
+                    colour = G.C.BLUE
+                    },
+                Xmult = card.ability.extra.mult
+                }
+        end
+    end
+}
+SMODS.Joker{ --ship
+    key = "shipwreak",
+    config = {
+        extra = {
+            chips = 3,
+            odds = 3
+        }
+    },
+    loc_txt = {
+        ['name'] = '沉船',
+        ['text'] = {
+            [1] = '打出的{C:clubs}梅花{}被計分時',
+            [2] = '有{C:green}#2#/#3#{}機率{X:blue,C:white}X#1#{}籌碼'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 8,
+        y = 2
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    loc_vars = function(self, info_queue, card)
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_shipwreak') 
+        return {vars = {card.ability.extra.chips, new_numerator, new_denominator}}
+    end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play then
+            if context.other_card:is_suit("Clubs") then
+                if SMODS.pseudorandom_probability(card, 'group_0_86561525', 1, card.ability.extra.odds, 'j_mcgm_shipwreak', false) then
+                    return {
+                      x_chips = card.ability.extra.chips
+                    }
+                end
+            end
+        end
+        if context.forcetrigger then
+            return {
+                x_chips = card.ability.extra.chips
+            }
+        end
+    end
+}
 
 SMODS.Joker{ --Cobblestone Generator
     key = "cobble",
@@ -83,88 +287,26 @@ SMODS.Joker{ --Cobblestone Generator
     end
 }
 
-SMODS.Joker{ --MACE ATTACK
-    key = "maceattack",
+SMODS.Joker{ --村民繁殖機
+    key = "villagerbreeder",
     config = {
         extra = {
         }
     },
     loc_txt = {
-        ['name'] = 'MACE ATTACK',
+        ['name'] = '村民繁殖機',
         ['text'] = {
-            [1] = '打出並計分的牌中',
-            [2] = '最高點數和最低點數每差1點',
-            [3] = '{X:red,C:white}X0.6{}倍率'
+            [1] = '回合結束時',
+            [2] = '產生一張{C:attention}無業村民{}',
+            [3] = '{C:inactive}(必須有空間){}'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
         }
     },
     pos = {
-        x = 0,
-        y = 0
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 6,
-    rarity = 2,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            local low, high = context.scoring_hand[1].base.nominal, context.scoring_hand[1].base.nominal
-            for k, v in ipairs(context.scoring_hand) do
-                if v.base.nominal < low then
-                    low = v.base.nominal
-                elseif v.base.nominal > high then
-                    high = v.base.nominal
-                end
-            end
-            if high - low > 0 then
-                return {
-                    Xmult = 0.6 * lenient_bignum((high - low) or 0)
-                }
-            else
-                return {
-                    Xmult = 0,
-                    card_eval_status_text(card, "extra", nil, nil, nil, { message = "X0 Mult", colour = G.C.RED })
-                }
-            end
-        end
-    end
-
-}
-
-
-SMODS.Joker{ --QUARTZ
-    key = "quartz",
-    config = {
-        extra = {
-            mult = 51,
-            odds = 4
-        }
-    },
-    loc_txt = {
-        ['name'] = '石英',
-        ['text'] = {
-            [1] = '打出的{C:hearts}紅心{}牌計分時',
-            [2] = '有{C:green}#2#/#3#{}機率{C:red}+#1#{}倍率',
-            [3] = '{C:inactive}我的石英呢{}'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 4,
-        y = 0
+        x = 7,
+        y = 6
     },
     display_size = {
         w = 71 * 1, 
@@ -180,32 +322,36 @@ SMODS.Joker{ --QUARTZ
     discovered = true,
     atlas = 'CustomJokers',
     
-    loc_vars = function(self, info_queue, card)
-        
-        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_quartz') 
-        return {vars = {card.ability.extra.mult, new_numerator, new_denominator}}
-    end,
-    
     calculate = function(self, card, context)
-        if context.forcetrigger then
+        if context.end_of_round and context.game_over == false and context.main_eval or context.forcetrigger then
             return {
-                mult = card.ability.extra.mult
-            }
-        end
-        if context.individual and context.cardarea == G.play  then
-            if context.other_card:is_suit("Hearts") then
-                if SMODS.pseudorandom_probability(card, 'group_0_42e3a785', 1, card.ability.extra.odds, 'j_mcgm_quartz', false) then
-                    return {
-                        mult = card.ability.extra.mult
-                    }
+                func = function()
+                    
+                    local created_joker = false
+                    if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
+                        created_joker = true
+                        G.GAME.joker_buffer = G.GAME.joker_buffer + 1
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                local joker_card = SMODS.add_card({ set = 'Joker', key = 'j_mcgm_nojob' })
+                                if joker_card then
+                                    
+                                    
+                                end
+                                G.GAME.joker_buffer = 0
+                                return true
+                            end
+                        }))
+                    end
+                    if created_joker then
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_joker'), colour = G.C.BLUE})
+                    end
+                    return true
                 end
-            end
+            }
         end
     end
 }
-
-
-
 SMODS.Joker{ --刷鐵機
     key = "ironfarm",
     config = {
@@ -362,56 +508,6 @@ SMODS.Joker{ --刷金機
         end
     end
 }
-
-SMODS.Joker{ --Zombie Skeleton
-    key = "zombieskeleton",
-    config = {
-        extra = {
-        }
-    },
-    loc_txt = {
-        ['name'] = '殭屍骷髏',
-        ['text'] = {
-            [1] = '打出並計分的{C:spades}黑桃{}牌轉換為{C:clubs}梅花{}牌'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 1,
-        y = 0
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 3,
-    rarity = 1,
-    blueprint_compat = false,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-    
-    calculate = function(self, card, context)
-        if context.individual and context.cardarea == G.play  and not context.blueprint then
-            if context.other_card:is_suit("Spades") then
-                local scored_card = context.other_card
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        
-                        assert(SMODS.change_base(scored_card, "Clubs", nil))
-                        card_eval_status_text(scored_card, 'extra', nil, nil, nil, {message = "Card Modified!", colour = G.C.ORANGE})
-                        return true
-                    end
-                }))
-            end
-        end
-    end
-}
-
 
 SMODS.Joker{ --Low Tier 1
     key = "lowtier1",

@@ -928,6 +928,58 @@ SMODS.Joker{ --小殭屍
     end
 }
 
+SMODS.Joker{ --蜘蛛
+    key = "spider",
+    config = {
+        extra = {
+            pb_bonus = 16,
+            perma_bouns = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '蜘蛛',
+        ['text'] = {
+            [1] = '打出的{C:attention}8{}',
+            [2] = '永久獲得{C:blue}+#1#{}籌碼'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 8,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 4,
+    rarity = 1,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.pb_bonus}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if context.other_card:get_id() == 8 then
+                context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus or 0
+                context.other_card.ability.perma_bonus = context.other_card.ability.perma_bonus + card.ability.extra.pb_bonus
+                return {
+                    extra = { message = localize('k_upgrade_ex'), colour = G.C.CHIPS }, card = card
+                }
+            end
+        end
+    end
+}
 SMODS.Joker{ --女巫
     key = "witch",
     config = {
@@ -1010,7 +1062,7 @@ SMODS.Joker{ --終界使者
     key = "enderman",
     config = {
         extra = {
-            xmult = 0
+            xmult = 1
         }
     },
     loc_txt = {
@@ -1053,7 +1105,7 @@ SMODS.Joker{ --終界使者
             if G.GAME.current_round.hands_played == 0 then
                 return {
                     func = function()
-                        card.ability.extra.xmult = G.GAME.current_round.discards_left
+                        card.ability.extra.xmult = 1 + (G.GAME.current_round.discards_left or 0)
                         return true
                     end,
                     extra = {
@@ -1071,7 +1123,7 @@ SMODS.Joker{ --終界使者
         if context.end_of_round and context.game_over == false and context.main_eval  and not context.blueprint then
             return {
                 func = function()
-                    card.ability.extra.xmult = 0
+                    card.ability.extra.xmult = 1
                     return true
                 end
             }
@@ -1079,6 +1131,115 @@ SMODS.Joker{ --終界使者
         if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
             return {
                 Xmult = card.ability.extra.xmult
+            }
+        end
+    end
+}
+SMODS.Joker{ --guardian
+    key = "guardian",
+    config = {
+        extra = {
+            repetitions = 1
+        }
+    },
+    loc_txt = {
+        ['name'] = '深海守衛',
+        ['text'] = {
+            [1] = '重新觸發打出的',
+            [2] = '{C:attention}6,7,8,9,10{}'
+        },
+        ['unlock'] = {
+            [1] = ''
+        }
+    },
+    pos = {
+        x = 6,
+        y = 3
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    calculate = function(self, card, context)
+        if context.repetition and context.cardarea == G.play  then
+            if (context.other_card:get_id() == 6 or context.other_card:get_id() == 7 or context.other_card:get_id() == 8 or context.other_card:get_id() == 9 or context.other_card:get_id() == 10) then
+                return {
+                    repetitions = card.ability.extra.repetitions,
+                    message = "Again!"
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --遠古深海守衛
+    key = "elderguardian",
+    config = {
+        extra = {
+            money = 8
+        }
+    },
+    loc_txt = {
+        ['name'] = '遠古深海守衛',
+        ['text'] = {
+            [1] = '打出的{C:attention}3,6{}或{C:attention}9{}計分時{C:money}+$#1#{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 4,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 8,
+    rarity = 3,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.money}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if (context.other_card:get_id() == 3) or (context.other_card:get_id() == 6) or (context.other_card:get_id() == 9) then
+                return {
+                    
+                    func = function()
+                        
+                        local current_dollars = G.GAME.dollars
+                        local target_dollars = G.GAME.dollars + card.ability.extra.money
+                        local dollar_value = target_dollars - current_dollars
+                        ease_dollars(dollar_value)
+                        card_eval_status_text(context.other_card or card, 'extra', nil, nil, nil, {message = "$"..tostring(card.ability.extra.money), colour = G.C.MONEY})
+                        return true
+                    end
+                }
+            end
+        end
+        if context.forcetrigger then
+            return {
+                dollars = card.ability.extra.money
             }
         end
     end
@@ -1175,6 +1336,132 @@ SMODS.Joker{ --Piglin
     end
 }
 
+SMODS.Joker{ --殭屍化豬布林
+    key = "zombiepigman",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '殭屍化豬布林',
+        ['text'] = {
+            [1] = '賣掉這張牌時產生',
+            [2] = '一張{C:attention}惡魔{}和一張{C:attention}皇后{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 9,
+        y = 6
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 1,
+    blueprint_compat = true,
+    demicoloncompat = true,
+    eternal_compat = false,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.selling_self  and not context.blueprint or context.forcetrigger then
+            return {
+                func = function()
+                    
+                    for i = 1, math.min(1, G.consumeables.config.card_limit - #G.consumeables.cards) do
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.4,
+                            func = function()
+                                play_sound('timpani')
+                                SMODS.add_card({ set = 'Tarot', key = 'c_devil'})                            
+                                card:juice_up(0.3, 0.5)
+                                return true
+                            end
+                        }))
+                    end
+                    delay(0.6)
+                    return true
+                end,
+                extra = {
+                    func = function()
+                        
+                        for i = 1, math.min(1, G.consumeables.config.card_limit - #G.consumeables.cards) do
+                            G.E_MANAGER:add_event(Event({
+                                trigger = 'after',
+                                delay = 0.4,
+                                func = function()
+                                    play_sound('timpani')
+                                    SMODS.add_card({ set = 'Tarot', key = 'c_empress'})                            
+                                    card:juice_up(0.3, 0.5)
+                                    return true
+                                end
+                            }))
+                        end
+                        delay(0.6)
+                        return true
+                    end,
+                    colour = G.C.PURPLE
+                }
+            }
+        end
+    end
+}
+
+SMODS.Joker{ --豬布獸
+    key = "hoglin",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '豬布獸',
+        ['text'] = {
+            [1] = '若打出的牌為{C:attention}剛好1張牌{}，',
+            [2] = '這張牌計分時點數{C:attention}+2{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 1,
+        y = 7
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 3,
+    rarity = 1,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if to_big(#context.full_hand) == to_big(1) then
+            local scored_card = context.other_card
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    assert(SMODS.modify_rank(scored_card, 2))
+                    return true
+                end
+            }))
+            end
+        end
+    end
+}
 SMODS.Joker{ --Piglin Brute
     key = "piglinbrute",
     config = {
@@ -1242,6 +1529,171 @@ SMODS.Joker{ --Piglin Brute
                     return true
                 end
             }
+        end
+    end
+}
+SMODS.Joker{ --wither skeleton
+    key = "witherskeleton",
+    config = {
+        extra = {
+            scored = 0,
+            pb_mult = 5,
+            perma_mult = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '凋零骷髏',
+        ['text'] = {
+            [1] = '打出並計分的{C:spades}黑桃{}牌',
+            [2] = '永久獲得{C:red}+#1#{}倍率'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 7,
+        y = 2
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 8,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = {card.ability.extra.pb_mult}}
+    end,
+	
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if context.other_card:is_suit("Spades") then
+                context.other_card.ability.perma_mult = context.other_card.ability.perma_mult or 0
+                context.other_card.ability.perma_mult = context.other_card.ability.perma_mult + card.ability.extra.pb_mult
+                return {
+                    extra = { message = localize('k_upgrade_ex'), colour = G.C.MULT }, card = card
+                }
+            end
+        end
+    end
+}
+SMODS.Joker{ --烈焰使者
+    key = "blaze",
+    config = {
+        extra = {
+            odds = 2
+        }
+    },
+    loc_txt = {
+        ['name'] = '烈焰使者',
+        ['text'] = {
+            [1] = '若打出牌型包含{C:attention}三條{}，',
+            [2] = '{C:green}#1#/#2#{}機率產生一張{C:attention}火祭{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 2, y = 7 -- bulgoe reference
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 6,
+    rarity = 2,
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_blaze') 
+        return {vars = {new_numerator, new_denominator}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and context.joker_main  then
+            if next(context.poker_hands["Three of a Kind"]) then
+                if SMODS.pseudorandom_probability(card, 'group_0_22491ffe', 1, card.ability.extra.odds, 'j_mcgm_blaze', false) then
+                    for i = 1, math.min(1, G.consumeables.config.card_limit - #G.consumeables.cards) do
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.4,
+                            func = function()
+                                play_sound('timpani')
+                                SMODS.add_card({ set = 'Spectral', key = 'c_immolate'})                            
+                                card:juice_up(0.3, 0.5)
+                                return true
+                            end
+                        }))
+                    end
+                    card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = created_consumable and localize('k_plus_spectral') or nil, colour = G.C.SECONDARY_SET.Spectral})
+                end
+            end
+        end
+    end
+}
+
+SMODS.Joker{ --界伏蚌
+    key = "shulker",
+    config = {
+        extra = {
+        }
+    },
+    loc_txt = {
+        ['name'] = '界伏蚌',
+        ['text'] = {
+            [1] = '回合結束時，',
+            [2] = '將所有消耗牌欄位中的牌',
+            [3] = '改為{C:dark_edition}負片{}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 0,
+        y = 7
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 3,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    calculate = function(self, card, context)
+        if context.ending_shop  and not context.blueprint then
+			for i, v in pairs(G.consumeables.cards) do
+				if not v.edition or not v.edition.negative then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        local card = v
+                        card:set_edition("e_negative", true)
+                        card:add_to_deck()
+                        return true
+                    end
+                }))
+				end
+			end
         end
     end
 }

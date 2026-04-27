@@ -100,62 +100,6 @@ SMODS.Joker{ --普拿疼
         end
     end
 }
-SMODS.Joker{ --Samurai
-    key = "samurai",
-    config = {
-        extra = {
-            xmult = 7,
-            scored = 0
-        }
-    },
-    loc_txt = {
-        ['name'] = '武士',
-        ['text'] = {
-            [1] = '每{C:attention}7{}張牌計分時{X:red,C:white}X#1#{}倍率',
-            [2] = '{C:inactive}(目前#2#/7){}'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 7, y = 5
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 7,
-    rarity = 2,
-    blueprint_compat = false,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-    
-    loc_vars = function(self, info_queue, card)
-        
-        return {vars = {card.ability.extra.xmult, card.ability.extra.scored}}
-    end,
-    
-    calculate = function(self, card, context)
-        if context.individual and context.cardarea == G.play  then
-            if to_big((card.ability.extra.scored or 0)) < to_big(6) then
-                card.ability.extra.scored = (card.ability.extra.scored) + 1
-                return {
-                    message = "domp"
-                }
-            else
-                card.ability.extra.scored = 0
-                return {
-                    Xmult = card.ability.extra.xmult
-                }
-            end
-        end
-    end
-}
-
 SMODS.Joker{ --Iciclez_
     key = "iciclez",
     config = {
@@ -345,162 +289,7 @@ SMODS.Joker{ --Chocolatebar Quotes
         end
     end
 }
-SMODS.Joker{ --Bloon Exclusion Zone (v38-53)
-    key = "bez",
-    config = {
-        extra = {
-            scored = 0,
-            pb_mult = 6,
-            perma_mult = 0
-        }
-    },
-    loc_txt = {
-        ['name'] = '氣球禁區',
-        ['text'] = {
-            [1] = '打出並計分的{C:spades}黑桃{}牌',
-            [2] = '永久獲得{C:red}+#1#{}倍率'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 7,
-        y = 2
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 8,
-    rarity = 2,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
 
-    loc_vars = function(self, info_queue, card)
-        return {vars = {card.ability.extra.pb_mult}}
-    end,
-	
-    calculate = function(self, card, context)
-        if context.individual and context.cardarea == G.play  then
-            if context.other_card:is_suit("Spades") then
-                context.other_card.ability.perma_mult = context.other_card.ability.perma_mult or 0
-                context.other_card.ability.perma_mult = context.other_card.ability.perma_mult + card.ability.extra.pb_mult
-                return {
-                    extra = { message = localize('k_upgrade_ex'), colour = G.C.MULT }, card = card
-                }
-            end
-        end
-    end
-}
-SMODS.Joker{ --Carrier Flagship
-    key = "carrierflagship",
-    config = {
-        extra = {
-            chips = 3,
-            odds = 3
-        }
-    },
-    loc_txt = {
-        ['name'] = '航母旗艦',
-        ['text'] = {
-            [1] = '打出的{C:clubs}梅花{}被計分時',
-            [2] = '有{C:green}#2#/#3#{}機率{X:blue,C:white}X#1#{}籌碼',
-            [3] = '{C:inactive}Let\'s go gambling!{}'
-        },
-        ['unlock'] = {
-            [1] = 'Unlocked by default.'
-        }
-    },
-    pos = {
-        x = 8,
-        y = 2
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 6,
-    rarity = 2,
-    blueprint_compat = true,
-    demicoloncompat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-
-    loc_vars = function(self, info_queue, card)
-        local new_numerator, new_denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds, 'j_mcgm_carrierflagship') 
-        return {vars = {card.ability.extra.chips, new_numerator, new_denominator}}
-    end,
-
-    calculate = function(self, card, context)
-        if context.individual and context.cardarea == G.play then
-            if context.other_card:is_suit("Clubs") then
-                if SMODS.pseudorandom_probability(card, 'group_0_86561525', 1, card.ability.extra.odds, 'j_mcgm_carrierflagship', false) then
-                    return {
-                      x_chips = card.ability.extra.chips
-                    }
-                end
-            end
-        end
-        if context.forcetrigger then
-            return {
-                x_chips = card.ability.extra.chips
-            }
-        end
-    end
-}
-SMODS.Joker{ --Barracuda
-    key = "barracuda",
-    config = {
-        extra = {
-            repetitions = 1
-        }
-    },
-    loc_txt = {
-        ['name'] = '梭魚',
-        ['text'] = {
-            [1] = '重新觸發打出的',
-            [2] = '{C:attention}6,7,8,9,10{}'
-        },
-        ['unlock'] = {
-            [1] = ''
-        }
-    },
-    pos = {
-        x = 6,
-        y = 3
-    },
-    display_size = {
-        w = 71 * 1, 
-        h = 95 * 1
-    },
-    cost = 6,
-    rarity = 2,
-    blueprint_compat = true,
-    eternal_compat = true,
-    perishable_compat = true,
-    unlocked = true,
-    discovered = true,
-    atlas = 'CustomJokers',
-
-    calculate = function(self, card, context)
-        if context.repetition and context.cardarea == G.play  then
-            if (context.other_card:get_id() == 6 or context.other_card:get_id() == 7 or context.other_card:get_id() == 8 or context.other_card:get_id() == 9 or context.other_card:get_id() == 10) then
-                return {
-                    repetitions = card.ability.extra.repetitions,
-                    message = "Again!"
-                }
-            end
-        end
-    end
-}
 if Cryptid then
 SMODS.Joker{ --Mabel
     key = "mabel",
@@ -512,7 +301,7 @@ SMODS.Joker{ --Mabel
         ['name'] = '梅寶',
         ['text'] = {
             [1] = '打出牌結算前，所有小丑的數值',
-            [2] = '隨機改為目前數值的{C:attention}X0.8{}到{C:attention}X1.3{}倍'
+            [2] = '隨機改為目前數值的{C:attention}X0.8{}到{C:attention}X1.28{}倍'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
@@ -538,7 +327,7 @@ SMODS.Joker{ --Mabel
     
     calculate = function(self, card, context)
         if (context.cardarea == G.jokers and context.before) or context.forcetrigger then
-            local result = pseudorandom(pseudoseed("mcgm_mabel"), 80, 130)
+            local result = pseudorandom(pseudoseed("mcgm_mabel"), 80, 128)
             local check = false
             for i = 1, #G.jokers.cards do
                 if not (G.jokers.cards[i] == card) then
@@ -626,7 +415,7 @@ SMODS.Joker{ --Tom
     key = "tom",
     config = {
         extra = {
-            mult_mod = 2,
+            mult_mod = 1.5,
             mult = 0
         }
     },
@@ -751,7 +540,7 @@ SMODS.Joker{ --King George
     config = {
         extra = {
             eor = 3,
-            eor_mod = 0.5
+            eor_mod = 0.3
         }
     },
     loc_txt = {
@@ -813,6 +602,61 @@ SMODS.Joker{ --King George
     calc_dollar_bonus = function(self, card)
         if to_big(card.ability.extra.eor) > to_big(0) then
             return lenient_bignum(card.ability.extra.eor)
+        end
+    end
+}
+SMODS.Joker{ --Samurai
+    key = "samurai",
+    config = {
+        extra = {
+            xmult = 7,
+            scored = 0
+        }
+    },
+    loc_txt = {
+        ['name'] = '武士',
+        ['text'] = {
+            [1] = '每{C:attention}7{}張牌計分時{X:red,C:white}X#1#{}倍率',
+            [2] = '{C:inactive}(目前#2#/7){}'
+        },
+        ['unlock'] = {
+            [1] = 'Unlocked by default.'
+        }
+    },
+    pos = {
+        x = 7, y = 5
+    },
+    display_size = {
+        w = 71 * 1, 
+        h = 95 * 1
+    },
+    cost = 7,
+    rarity = 2,
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
+    unlocked = true,
+    discovered = true,
+    atlas = 'CustomJokers',
+    
+    loc_vars = function(self, info_queue, card)
+        
+        return {vars = {card.ability.extra.xmult, card.ability.extra.scored}}
+    end,
+    
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play  then
+            if to_big((card.ability.extra.scored or 0)) < to_big(6) then
+                card.ability.extra.scored = (card.ability.extra.scored) + 1
+                return {
+                    message = "domp"
+                }
+            else
+                card.ability.extra.scored = 0
+                return {
+                    Xmult = card.ability.extra.xmult
+                }
+            end
         end
     end
 }
