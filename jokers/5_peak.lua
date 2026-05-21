@@ -190,7 +190,7 @@ SMODS.Joker{ --Sports drink
     key = "sportsdrink",
     config = {
         extra = {
-            xchips = 2.5,
+            xchips = 3.5,
             xchipsmod = 0.1
         }
     },
