@@ -230,7 +230,7 @@ SMODS.Joker{ --Cobblestone Generator
         w = 71 * 1, 
         h = 95 * 1
     },
-    cost = 5,
+    cost = 2,
     rarity = 1,
     blueprint_compat = true,
     demicoloncompat = true,
@@ -618,9 +618,9 @@ SMODS.Joker{ --Solo
     loc_txt = {
         ['name'] = 'Solo',
         ['text'] = {
-            [1] = '若打出的牌型為{C:attention}高牌{}，',
-            [2] = '這張小丑獲得{C:red}+#1#{}倍率',
-            [3] = '{C:inactive}(目前{}{C:red}+#2#{}{C:inactive}倍率){}'
+            [1] = '將本局打出過{C:attention}高牌{}',
+            [2] = '的次數加到{C:red}倍率{}',
+            [3] = '{C:inactive}(目前{}{C:red}+#1#{}{C:inactive}倍率){}'
         },
         ['unlock'] = {
             [1] = 'Unlocked by default.'
@@ -646,30 +646,20 @@ SMODS.Joker{ --Solo
     
     loc_vars = function(self, info_queue, card)
         
-        return {vars = {card.ability.extra.mult_mod, card.ability.extra.mult}}
+        return {vars = {(G.GAME.hands['High Card'].played or 0)}}
     end,
     
     calculate = function(self, card, context)
         if context.before and context.cardarea == G.jokers  and not context.blueprint then
             if context.scoring_name == "High Card" then
                 return {
-                    func = function()
-                        card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
-                        return true
-                    end,
                     message = localize('k_upgrade_ex')
                 }
             end
         end
-        if context.cardarea == G.jokers and context.joker_main  then
+        if context.cardarea == G.jokers and context.joker_main or context.forcetrigger then
             return {
-                mult = card.ability.extra.mult
-            }
-        end
-        if context.forcetrigger then
-            card.ability.extra.mult = (card.ability.extra.mult) + card.ability.extra.mult_mod
-            return {
-                mult = card.ability.extra.mult
+                mult = G.GAME.hands['High Card'].played
             }
         end
     end
