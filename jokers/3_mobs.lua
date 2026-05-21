@@ -286,7 +286,7 @@ SMODS.Joker{ --製箭師
         extra = {
             req = 4,
             played = 0,
-            money = 1,
+            money = 2,
             cardsinhand = 0
         }
     },
@@ -1069,7 +1069,7 @@ SMODS.Joker{ --終界使者
         ['name'] = '終界使者',
         ['text'] = {
             [1] = '每個回合首次出牌時，失去所有棄牌，',
-            [2] = '每失去1棄牌本回合{X:red,C:white}X1{}倍率',
+            [2] = '每失去1棄牌本回合額外{X:red,C:white}X0.75{}倍率',
             [3] = '{C:inactive}（目前{}{X:red,C:white}X#1#{}{C:inactive}倍率）{}',
             [4] = ''
         },
@@ -1105,7 +1105,7 @@ SMODS.Joker{ --終界使者
             if G.GAME.current_round.hands_played == 0 then
                 return {
                     func = function()
-                        card.ability.extra.xmult = 1 + (G.GAME.current_round.discards_left or 0)
+                        card.ability.extra.xmult = 1 + ((G.GAME.current_round.discards_left or 0) * 0.75)
                         return true
                     end,
                     extra = {
