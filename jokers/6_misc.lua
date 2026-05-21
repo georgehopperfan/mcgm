@@ -2,7 +2,7 @@ SMODS.Joker{ --Green Cookie
     key = "greencookie",
     config = {
         extra = {
-            mult = 17,
+            mult = 18,
             multiplier = 1.03
         }
     },
@@ -52,13 +52,13 @@ SMODS.Joker{ --普拿疼
     key = "paracetamol",
     config = {
         extra = {
-            blind_size0 = 0.33
+            blind_size0 = 0.4
         }
     },
     loc_txt = {
         ['name'] = '普拿疼',
         ['text'] = {
-            [1] = '{C:attention}-67%{}盲注大小',
+            [1] = '{C:attention}-60%{}盲注大小',
             [2] = '{C:inactive,s:0.5}                              積分{}',
             [3] = '{C:inactive,s:0.8}對乙醯氨基酚{}'
         },
@@ -90,7 +90,7 @@ SMODS.Joker{ --普拿疼
                 
                 func = function()
                     if G.GAME.blind.in_blind then
-                        G.GAME.blind.chips = G.GAME.blind.chips * 0.33
+                        G.GAME.blind.chips = G.GAME.blind.chips * 0.4
                         G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
                         G.HUD_blind:recalculate()
                         return true
